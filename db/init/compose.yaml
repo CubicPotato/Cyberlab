@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:18
+    volumes:
+      - ./my-postgres.conf:/etc/postgresql/postgresql.conf
+      - ./init-db:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql
+    command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    environment:
+      POSTGRES_PASSWORD: password
+      TZ: Europe/France
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C.UTF-8"
+
+volumes:
+  postgres_data:

@@ -1,6 +1,7 @@
 from .extension import auth
 from .errors import unauthorized
 from .models import User
+from flask import g
 
 
 
