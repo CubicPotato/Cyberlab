@@ -1,5 +1,48 @@
-<form method="POST" action="/api/auth">
-    <input type="text" placeholder="login"> 
-    <input type="password" placeholder="password">
-    <input type="submit" placeholder="submit">
-</form>
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Connexion</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 2rem; }
+      form { max-width: 320px; display: grid; gap: 0.75rem; }
+      input { padding: 0.6rem; }
+      button { padding: 0.7rem; cursor: pointer; }
+      #message { margin-top: 1rem; }
+    </style>
+  </head>
+  <body>
+    <h1>Connexion</h1>
+    <form id="login-form">
+      <input id="login" name="login" type="text" placeholder="login" required />
+      <input id="password" name="password" type="password" placeholder="password" required />
+      <button type="submit">Se connecter</button>
+    </form>
+    <div id="message"></div>
+
+    <script>
+      const form = document.getElementById('login-form');
+      const message = document.getElementById('message');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const payload = {
+          login: document.getElementById('login').value,
+          password: document.getElementById('password').value,
+        };
+
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+        message.textContent = response.ok
+          ? `Connexion réussie pour ${data.login}`
+          : data.error || 'Erreur de connexion';
+      });
+    </script>
+  </body>
+</html>

@@ -13,6 +13,16 @@ services:
     depends_on:
       - db
 
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    volumes:
+      - ./api/site:/usr/share/nginx/html:ro
+
   db:
     image: postgres:18
     ports:

@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask, g
+from flask import Flask, g, jsonify, request
 from .extension import db, auth as http_auth
 from . import auth as auth_module
+from .models import User
 
 load_dotenv()
 
@@ -32,7 +33,21 @@ def create_app(test_config=None):
     # ensure the instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)
 
-    # a simple page that says hello
+    @app.route('/api/login', methods=['POST'])
+    def login():
+        data = request.get_json(silent=True) or {}
+        login = data.get('login')
+        password = data.get('password')
+
+        if not login or not password:
+            return jsonify({"error": "missing credentials"}), 400
+
+        user = db.session.execute(db.select(User).where(User.login == login)).scalar_one_or_none()
+        if user is None or not user.bdcheck(password):
+            return jsonify({"error": "invalid credentials"}), 401
+
+        return jsonify({"login": user.login})
+
     @app.route('/api/me')
     @http_auth.login_required
     def me():
