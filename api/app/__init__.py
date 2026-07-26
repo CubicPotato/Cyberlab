@@ -1,7 +1,8 @@
 import os
 from dotenv import load_dotenv
-from flask import Flask
-from .extension import db
+from flask import Flask, g
+from .extension import db, auth as http_auth
+from . import auth as auth_module
 
 load_dotenv()
 
@@ -32,8 +33,9 @@ def create_app(test_config=None):
     os.makedirs(app.instance_path, exist_ok=True)
 
     # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
+    @app.route('/api/me')
+    @http_auth.login_required
+    def me():
+        return {"login": g.current_user.login}
 
     return app
