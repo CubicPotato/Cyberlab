@@ -12,6 +12,8 @@ services:
       DB_NAME: postgres
     depends_on:
       - db
+    networks:
+      - monitoring
 
   nginx:
     build:
@@ -22,6 +24,8 @@ services:
       - api
     volumes:
       - ./api/site:/usr/share/nginx/html:ro
+    networks:
+      - monitoring
 
   db:
     image: postgres:18
@@ -38,6 +42,12 @@ services:
       - ./db/init/init-db:/docker-entrypoint-initdb.d:ro
       - postgres_data:/var/lib/postgresql
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
+    networks:
+      - monitoring
 
 volumes:
   postgres_data:
+
+networks:
+  monitoring:
+    name: monitoring_network
