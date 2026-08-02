@@ -19,7 +19,7 @@ build/
 *.key
 *.pem
 
-.Wazuh
+.Wazuh/
 
 .data/
 volumes/
