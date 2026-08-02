@@ -15,6 +15,13 @@ build/
 *.egg-info/
 
 .env
+.env.local
+*.key
+*.pem
 
 .Wazuh/
 wazuh-docker/
+
+.data/
+volumes/
+
