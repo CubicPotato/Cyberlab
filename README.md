@@ -6,13 +6,13 @@ Single-node Wazuh deployment with agent monitoring via Docker Compose.
 
 ```bash
 
-# 1.Cloneandenter monitoring folder
+# 1.Clone and enter monitoring folder
 
 cd monitoring
 
 # 2.Create .env from example (optional - edit if you want custom credentials)
 
-cp.env.example.env
+cp .env.example
 
 # 3. Launch the stack
 
@@ -35,12 +35,7 @@ docker compose -f docker-compose.monitoring.yml down
 
 ## Access
 
-- **Wazuh Dashboard**: https://localhost:443
-  - Username: `admin`
-  - Password: `SecretPassword`
-- **API**: https://localhost:55000
-  - Username: `wazuh-wui`
-  - Password: `MyS3cr37P450r.*-`
+consulter les .env.example pour les valeurs par défault de configuration
 
 ## Components
 

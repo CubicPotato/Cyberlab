@@ -1,8 +1,6 @@
 # Wazuh Monitoring Stack - Single Node + Agent
 # Usage: docker compose -f docker-compose.monitoring.yml up --pull always
-# Access: https://localhost:443 (admin/SecretPassword)
-
-version: '3.8'
+# Access: https://localhost:443 
 
 services:
   # Wazuh Manager
@@ -148,3 +146,4 @@ networks:
   monitoring:
     name: monitoring_network
     driver: bridge
+    external: true
