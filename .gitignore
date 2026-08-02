@@ -19,8 +19,7 @@ build/
 *.key
 *.pem
 
-.Wazuh/
-wazuh-docker/
+.Wazuh
 
 .data/
 volumes/
