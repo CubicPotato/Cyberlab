@@ -2,6 +2,24 @@
 
 Single-node Wazuh deployment with agent monitoring via Docker Compose.
 
+## Setup
+
+```bash
+
+# 1.Cloneandenter monitoring folder
+
+cd monitoring
+
+# 2.Create .env from example (optional - edit if you want custom credentials)
+
+cp.env.example.env
+
+# 3. Launch the stack
+
+docker compose -f docker-compose.monitoring.yml up --pull always -d
+```
+
+
 ## Quick Start
 
 ```bash
