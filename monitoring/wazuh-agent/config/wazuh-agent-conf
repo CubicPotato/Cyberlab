@@ -93,6 +93,12 @@
     </synchronization>
   </wodle>
 
+  <wodle name="docker-listener">
+    <attempts>5</attempts>
+    <run_on_start>yes</run_on_start>
+    <disabled>no</disabled>
+  </wodle>
+  
   <sca>
     <enabled>yes</enabled>
     <scan_on_start>yes</scan_on_start>
@@ -190,6 +196,12 @@
   <localfile>
     <log_format>syslog</log_format>
     <location>/var/ossec/logs/active-responses.log</location>
+  </localfile>
+
+  <localfile>
+    <log_format>syslog</log_format>
+    <location>/var/lib/docker/containers/*/*-json.log</location>
+    <label key="@source">docker</label>
   </localfile>
 
 </ossec_config>

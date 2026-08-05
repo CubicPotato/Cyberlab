@@ -1,0 +1,10 @@
+<group name="cyberlab,web,">
+
+  <rule id="100102" level="10">
+    <if_sid>31100</if_sid>
+    <url type="pcre2">^/wazuh-chain-test-987656$</url>
+    <description>TEST: Wazuh detected a specific Nginx request</description>
+    <group>web,cyberlab,</group>
+  </rule>
+
+</group>

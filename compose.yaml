@@ -24,8 +24,23 @@ services:
       - api
     volumes:
       - ./api/site:/usr/share/nginx/html:ro
+      - nginx_logs:/var/log/nginx
     networks:
       - monitoring
+      - attack
+
+  kali:
+    build:
+      context: ./kali
+    container_name: cyberlab-kali
+    stdin_open: true
+    tty: true
+    cap_add:
+    - NET_RAW
+    - NET_ADMIN
+    privileged: true
+    networks:
+      - attack
 
   db:
     image: postgres:18
@@ -47,7 +62,12 @@ services:
 
 volumes:
   postgres_data:
+  nginx_logs:
+    name: cyberlab_nginx_logs
 
 networks:
   monitoring:
     name: monitoring_network
+
+  attack:
+    name: star_wars
