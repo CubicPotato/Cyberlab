@@ -1,6 +1,8 @@
+from flask import current_app, g
+
 from .extension import auth
 from .models import User
-from flask import current_app, g
+
 
 @auth.verify_password
 def verify_password(login, password):

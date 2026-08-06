@@ -1,11 +1,15 @@
 import os
+
 from dotenv import load_dotenv
 from flask import Flask, g, jsonify, request
-from .extension import db, auth as http_auth
+
 from . import auth as auth_module
+from .extension import auth as http_auth
+from .extension import db
 from .models import User
 
 load_dotenv()
+_AUTH_MODULE = auth_module
 
 REQUIRED_DB_ENV_VARS = ("DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT", "DB_NAME")
 
@@ -29,17 +33,23 @@ def create_app(test_config=None):
     app = Flask(__name__, instance_relative_config=True)
     
     # create and configure the app
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = _get_database_uri()
-    app.config["ALLOW_INSECURE_PLAINTEXT_AUTH"] = False
-    db.init_app(app)
+    app.config.from_mapping(
+        SQLALCHEMY_TRACK_MODIFICATIONS=False,
+        ALLOW_INSECURE_PLAINTEXT_AUTH=False,
+    )
     
     if test_config is None:
+        app.config["SQLALCHEMY_DATABASE_URI"] = _get_database_uri()
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
+    
+    if not app.config.get("SQLALCHEMY_DATABASE_URI"):
+        raise RuntimeError("SQLALCHEMY_DATABASE_URI is not configured")
+
+    db.init_app(app)
 
     # ensure the instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)
