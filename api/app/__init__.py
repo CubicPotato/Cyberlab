@@ -7,13 +7,14 @@ from .models import User
 
 load_dotenv()
 
-def create_app(test_config=None):
-    # initialize app and db
-    app = Flask(__name__, instance_relative_config=True)
-    
-    # create and configure the app
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-    app.config["SQLALCHEMY_DATABASE_URI"] = (
+REQUIRED_DB_ENV_VARS = ("DB_USER", "DB_PASSWORD", "DB_HOST", "DB_PORT", "DB_NAME")
+
+
+def _get_database_uri() -> str:
+    missing = [name for name in REQUIRED_DB_ENV_VARS if not os.getenv(name)]
+    if missing:
+        raise RuntimeError(f"Missing required database environment variables: {', '.join(missing)}")
+    return (
         f"postgresql+psycopg://"
         f"{os.getenv('DB_USER')}:"
         f"{os.getenv('DB_PASSWORD')}@"
@@ -21,6 +22,16 @@ def create_app(test_config=None):
         f"{os.getenv('DB_PORT')}/"
         f"{os.getenv('DB_NAME')}"
     )
+
+
+def create_app(test_config=None):
+    # initialize app and db
+    app = Flask(__name__, instance_relative_config=True)
+    
+    # create and configure the app
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SQLALCHEMY_DATABASE_URI"] = _get_database_uri()
+    app.config["ALLOW_INSECURE_PLAINTEXT_AUTH"] = False
     db.init_app(app)
     
     if test_config is None:
@@ -36,14 +47,26 @@ def create_app(test_config=None):
     @app.route('/api/login', methods=['POST'])
     def login():
         data = request.get_json(silent=True) or {}
+        if not isinstance(data, dict):
+            return jsonify({"error": "invalid payload"}), 400
+
         login = data.get('login')
         password = data.get('password')
 
+        if not isinstance(login, str) or not isinstance(password, str):
+            return jsonify({"error": "invalid credentials format"}), 400
+        login = login.strip()
         if not login or not password:
             return jsonify({"error": "missing credentials"}), 400
 
         user = db.session.execute(db.select(User).where(User.login == login)).scalar_one_or_none()
-        if user is None or not user.bdcheck(password):
+        if user is None:
+            return jsonify({"error": "invalid credentials"}), 401
+        if app.config["ALLOW_INSECURE_PLAINTEXT_AUTH"]:
+            is_valid = user.check_password_insecure(password)
+        else:
+            is_valid = user.check_password(password)
+        if not is_valid:
             return jsonify({"error": "invalid credentials"}), 401
 
         return jsonify({"login": user.login})

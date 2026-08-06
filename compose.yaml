@@ -11,9 +11,16 @@ services:
       DB_PORT: ${DB_PORT}
       DB_NAME: ${POSTGRES_DB}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - monitoring
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/login', timeout=2)"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
 
   nginx:
     build:
@@ -21,13 +28,20 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     volumes:
       - ./api/site:/usr/share/nginx/html:ro
       - nginx_logs:/var/log/nginx
     networks:
       - monitoring
       - attack
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost/ >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
 
   kali:
     build:
@@ -59,6 +73,12 @@ services:
     command: postgres -c config_file=/etc/postgresql/postgresql.conf
     networks:
       - monitoring
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
 
 volumes:
   postgres_data:

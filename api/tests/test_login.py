@@ -14,7 +14,9 @@ class LoginRouteTests(unittest.TestCase):
         self.app_context = self.app.app_context()
         self.app_context.push()
         db.create_all()
-        db.session.add(User(login="admin", password="12345"))
+        user = User(login="admin")
+        user.set_password("12345")
+        db.session.add(user)
         db.session.commit()
         self.client = self.app.test_client()
 
@@ -39,6 +41,14 @@ class LoginRouteTests(unittest.TestCase):
         )
 
         self.assertEqual(response.status_code, 401)
+
+    def test_login_rejects_non_string_credentials(self):
+        response = self.client.post(
+            "/api/login",
+            json={"login": ["admin"], "password": 12345},
+        )
+
+        self.assertEqual(response.status_code, 400)
 
 
 if __name__ == "__main__":

@@ -1,22 +1,32 @@
-import os
 import unittest
 
 from app import create_app
+from app.extension import db
+from app.models import User
 
 
 class AuthFlowTests(unittest.TestCase):
     def setUp(self):
-        os.environ["DB_USER"] = "postgres"
-        os.environ["DB_PASSWORD"] = "password"
-        os.environ["DB_HOST"] = "localhost"
-        os.environ["DB_PORT"] = "5432"
-        os.environ["DB_NAME"] = "postgres"
+        self.app = create_app({
+            "TESTING": True,
+            "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+        })
+        self.app_context = self.app.app_context()
+        self.app_context.push()
+        db.create_all()
+        user = User(login="admin")
+        user.set_password("12345")
+        db.session.add(user)
+        db.session.commit()
+        self.client = self.app.test_client()
+
+    def tearDown(self):
+        db.session.remove()
+        db.drop_all()
+        self.app_context.pop()
 
     def test_protected_route_accepts_valid_basic_auth(self):
-        app = create_app()
-        client = app.test_client()
-
-        response = client.get(
+        response = self.client.get(
             "/api/me",
             auth=("admin", "12345"),
         )
@@ -25,10 +35,7 @@ class AuthFlowTests(unittest.TestCase):
         self.assertEqual(response.get_json(), {"login": "admin"})
 
     def test_protected_route_rejects_invalid_basic_auth(self):
-        app = create_app()
-        client = app.test_client()
-
-        response = client.get(
+        response = self.client.get(
             "/api/me",
             auth=("admin", "wrong-password"),
         )

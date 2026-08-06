@@ -6,4 +6,7 @@ CREATE TABLE users (
 );
 
 INSERT INTO users (login, password)
-VALUES ('admin', '12345');
+VALUES (
+    'admin',
+    'scrypt:32768:8:1$HlIYycKez9uoVC0a$abe63f353a6ffe5b81374b68874d811fde58061e9c264376b11d3448496644a97304897dd3f04e001467081c70451366b6e15d59bb9fdb4f3068d8970562373f'
+);
