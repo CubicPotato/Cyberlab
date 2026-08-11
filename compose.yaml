@@ -1,7 +1,7 @@
 services:
-  api:
+  app:
     build:
-      context: ./api
+      context: ./app
     ports:
       - "8000:8000"
     environment:

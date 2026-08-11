@@ -30,16 +30,29 @@ Le fichier de composition principal est [compose.yaml](compose.yaml). Il défini
 Diagramme d'architecture (Mermaid)
 
 ```mermaid
-graph LR
-	NGNX[nginx (reverse-proxy)] -->|proxy /api| API[Flask API]
-	NGNX --> SITE[Static site (/usr/share/nginx/html)]
-	API --> DB[PostgreSQL]
-	KALI[Kali container] --- ATTACK_NET((attack network))
-	API --- ATTACK_NET
-	MON[Wazuh Monitoring stack] --- MON_NET((monitoring network))
-	NGNX --- MON_NET
-	DB --- MON_NET
-	API --- MON_NET
+ graph LR
+    subgraph attack [attack network]
+        KALI[Kali container]
+        NGNX["nginx (reverse-proxy)"]
+        KALI --- NGNX
+    end
+
+    subgraph internal [internal network]
+        NGNX2["nginx (reverse-proxy)"]
+        APP["App (host) — point d'entrée"]
+        API["api (Flask)"]
+        SITE["site (static)"]
+        DB[PostgreSQL]
+        MON[Wazuh monitoring stack]
+
+        NGNX2 --- APP
+        APP --> API
+        APP --> SITE
+        APP --- DB
+        APP --- MON
+    end
+
+    NGNX --- NGNX2
 ```
 
 Remarque: remplacez `your-username/your-repo` dans les badges ci-dessus par votre nom d'utilisateur et le nom du dépôt GitHub pour activer le badge Actions.

@@ -1,8 +1,8 @@
 import unittest
 
-from app import create_app
-from app.extension import db
-from app.models import User
+from api import create_app
+from api.extension import db
+from api.models import User
 
 
 class LoginRouteTests(unittest.TestCase):

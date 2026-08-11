@@ -1,6 +1,6 @@
 FROM python:3.12-slim
 
-WORKDIR /app
+WORKDIR /api
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
@@ -12,4 +12,4 @@ COPY . ./
 
 EXPOSE 8000
 
-CMD ["python", "-m", "flask", "--app", "app", "run", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "-m", "flask", "--app", "api", "run", "--host", "0.0.0.0", "--port", "8000"]
