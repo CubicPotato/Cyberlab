@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from flask import Flask, g, jsonify, request
 from .extension import db, auth as http_auth
 from .models import User
+from . import auth as auth_module  # noqa: F401  # register HTTP basic auth callback
 
 load_dotenv()
 
