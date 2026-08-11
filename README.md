@@ -30,29 +30,36 @@ Le fichier de composition principal est [compose.yaml](compose.yaml). Il défini
 Diagramme d'architecture (Mermaid)
 
 ```mermaid
- graph LR
-    subgraph attack [attack network]
+graph LR
+
+    subgraph attack["attack network"]
         KALI[Kali container]
-        NGNX["nginx (reverse-proxy)"]
-        KALI --- NGNX
+        NGNX["nginx"]
     end
 
-    subgraph internal [internal network]
-        NGNX2["nginx (reverse-proxy)"]
-        APP["App (host) — point d'entrée"]
-        API["api (Flask)"]
-        SITE["site (static)"]
-        DB[PostgreSQL]
-        MON[Wazuh monitoring stack]
-
-        NGNX2 --- APP
-        APP --> API
-        APP --> SITE
-        APP --- DB
-        APP --- MON
+    subgraph internal["monitoring network"]
+        NGNX2["nginx"]
+        APP["App"]
+        site["index"]
+        API["Flask"]
+        DB["PostgreSQL"]
+        MON["Wazuh"]
     end
 
-    NGNX --- NGNX2
+    KALI -->|Attaque| NGNX
+    NGNX -. Même conteneur .- NGNX2
+    NGNX2 -->|Reverse proxy| APP
+    APP ---| HTML | site
+    site --> | NEGOCIATION | API
+    API --> | REPONSE | site
+    API -->|SQL| DB
+    DB --> |CHECK| API
+
+    MON -->|Monitoring| NGNX2
+
+    style internal fill:#457FD6,stroke:#1565c0,stroke-width:4px,color:#000
+    style attack fill:#AD2B3E,stroke:#b71c1c,stroke-width:4px,color:#000
+    linkStyle 1 stroke:red,stroke-width:3px,stroke-dasharray: 8 4
 ```
 
 Remarque: remplacez `your-username/your-repo` dans les badges ci-dessus par votre nom d'utilisateur et le nom du dépôt GitHub pour activer le badge Actions.
