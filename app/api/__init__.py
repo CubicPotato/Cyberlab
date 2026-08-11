@@ -32,7 +32,7 @@ def create_app(test_config=None):
     # ensure the instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)
 
-    @app.route('/app/login', methods=['POST'])
+    @app.route('/api/login', methods=['POST'])
     def login():
         data = request.get_json(silent=True) or {}
         login = data.get('login')
@@ -47,7 +47,7 @@ def create_app(test_config=None):
 
         return jsonify({"login": user.login})
 
-    @app.route('/app/me')
+    @app.route('/api/me')
     @http_auth.login_required
     def me():
         return {"login": g.current_user.login}
