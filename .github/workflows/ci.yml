@@ -48,18 +48,7 @@ jobs:
         run: |
           echo "Waiting for Postgres at ${DB_HOST}:${DB_PORT}..."
           for i in {1..30}; do
-            python - <<'PY' && break || true
-import sys
-import psycopg
-try:
-    conn = psycopg.connect(dbname="${DB_NAME}", user="${DB_USER}", password="${DB_PASSWORD}", host="${DB_HOST}", port=${DB_PORT})
-    conn.close()
-    print('postgres ready')
-    sys.exit(0)
-except Exception as e:
-    print('waiting for postgres:', e)
-    sys.exit(1)
-PY
+            python -c "import os, sys, psycopg; conn = psycopg.connect(dbname=os.environ['DB_NAME'], user=os.environ['DB_USER'], password=os.environ['DB_PASSWORD'], host=os.environ['DB_HOST'], port=int(os.environ['DB_PORT'])); conn.close(); print('postgres ready'); sys.exit(0)" && break || true
             sleep 2
           done
 
