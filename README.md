@@ -142,11 +142,11 @@ curl -u admin:12345 http://localhost:8080/api/me
 **Structure du dépôt (sélection)**
 - [compose.yaml](compose.yaml) — composition principale (api, nginx, kali, db)
 - [app/](api/) — code de l'API Flask
-	- [app/Dockerfile](api/Dockerfile)
-	- [app/requirements.txt](api/requirements.txt)
-	- [app/api](api/app) — application Flask (routes, modèles, extensions)
-    - [app/site](api/site) — index html et js
-	- [app/tests](api/tests) — tests unitaires
+	- [Dockerfile](api/Dockerfile)
+	- [requirements.txt](api/requirements.txt)
+	- [api/](api/app) — application Flask (routes, modèles, extensions)
+    - [site/](api/site) — index html et js
+	- [tests/](api/tests) — tests unitaires
 - [db/init](db/init) — configuration et script d'initialisation PostgreSQL
 - [nginx/](nginx) — configuration et Dockerfile du reverse-proxy
 - [monitoring/](monitoring) — stack Wazuh (optionnelle)
