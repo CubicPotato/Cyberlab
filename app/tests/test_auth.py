@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from api import create_app
+from app.api import create_app
 
 
 class AuthFlowTests(unittest.TestCase):
