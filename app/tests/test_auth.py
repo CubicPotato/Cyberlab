@@ -3,9 +3,37 @@ import unittest
 import requests
 from requests.auth import HTTPBasicAuth
 
-import psycopg
+try:
+    import psycopg
+except ImportError:  # pragma: no cover - exercised in local runs without psycopg
+    psycopg = None
 
 from app.api import create_app
+
+
+def _connect_postgres():
+    if psycopg is None:
+        raise RuntimeError("psycopg is required for prod-mode tests")
+
+    db_user = os.getenv("DB_USER", "postgres")
+    db_password = os.getenv("DB_PASSWORD", "password")
+    db_port = int(os.getenv("DB_PORT", "5432"))
+    db_name = os.getenv("DB_NAME", "postgres")
+
+    hosts = [os.getenv("DB_HOST"), "127.0.0.1", "localhost"]
+    last_error = None
+    for host in hosts:
+        if not host:
+            continue
+        try:
+            conn = psycopg.connect(dbname=db_name, user=db_user, password=db_password, host=host, port=db_port)
+            return conn
+        except Exception as exc:
+            last_error = exc
+
+    if last_error is not None:
+        raise last_error
+    raise RuntimeError("Unable to connect to PostgreSQL")
 
 
 class AuthFlowTests(unittest.TestCase):
@@ -16,13 +44,7 @@ class AuthFlowTests(unittest.TestCase):
 
         # If testing against Postgres, ensure the users table and admin user exist
         if self.mode == "prod":
-            db_user = os.getenv("DB_USER", "postgres")
-            db_password = os.getenv("DB_PASSWORD", "password")
-            db_host = os.getenv("DB_HOST", "localhost")
-            db_port = os.getenv("DB_PORT", "5432")
-            db_name = os.getenv("DB_NAME", "postgres")
-
-            conn = psycopg.connect(dbname=db_name, user=db_user, password=db_password, host=db_host, port=db_port)
+            conn = _connect_postgres()
             cur = conn.cursor()
             cur.execute('''
             CREATE TABLE IF NOT EXISTS users (
