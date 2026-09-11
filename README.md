@@ -156,10 +156,4 @@ curl -u admin:12345 http://localhost:8080/api/me
 	- [tests/](api/tests) — tests unitaires
 - [db/init](db/init) — configuration et script d'initialisation PostgreSQL
 - [nginx/](nginx) — configuration et Dockerfile du reverse-proxy
-- [monitoring/](monitoring) — stack Wazuh (optionnelle)
-
-
-
----
-
-Si vous voulez que je rende ce README encore plus visuel (diagramme mermaid, captures d'écran, badge CI), dites-moi ce que vous préférez et je l'ajouterai.
+- [monitoring/](monitoring) — stack Wazuh 
