@@ -21,14 +21,17 @@ def create_app(test_config=None):
         f"{os.getenv('DB_PORT')}/"
         f"{os.getenv('DB_NAME')}"
     )
-    db.init_app(app)
-    
+
     if test_config is None:
         # load the instance config, if it exists, when not testing
         app.config.from_pyfile('config.py', silent=True)
     else:
         # load the test config if passed in
         app.config.from_mapping(test_config)
+
+    # init_app doit venir APRÈS le chargement de la config :
+    # Flask-SQLAlchemy 3 crée le moteur à ce moment-là avec l'URI courante.
+    db.init_app(app)
 
     # ensure the instance folder exists
     os.makedirs(app.instance_path, exist_ok=True)

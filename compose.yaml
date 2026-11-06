@@ -2,8 +2,7 @@ services:
   app:
     build:
       context: ./app
-    ports:
-      - "8000:8000"
+    # pas de port publié : l'API n'est joignable que via nginx
     environment:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
@@ -21,9 +20,9 @@ services:
     ports:
       - "8080:80"
     depends_on:
-      - api
+      - app
     volumes:
-      - ./api/site:/usr/share/nginx/html:ro
+      - ./app/site:/usr/share/nginx/html:ro
       - nginx_logs:/var/log/nginx
     networks:
       - monitoring
@@ -38,14 +37,12 @@ services:
     cap_add:
     - NET_RAW
     - NET_ADMIN
-    privileged: true
     networks:
       - attack
 
   db:
     image: postgres:18
-    ports:
-      - "5432:5432"
+    # pas de port publié : la base n'est joignable que depuis le réseau interne
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}

@@ -9,6 +9,8 @@ except ImportError:  # pragma: no cover - exercised in local runs without psycop
     psycopg = None
 
 from app.api import create_app
+from app.api.extension import db
+from app.api.models import User
 
 
 def _connect_postgres():
@@ -42,8 +44,20 @@ class AuthFlowTests(unittest.TestCase):
         self.mode = os.getenv("TEST_TARGET", "local")
         self.base_url = os.getenv("PROD_BASE_URL", "http://localhost:8080")
 
-        # If testing against Postgres, ensure the users table and admin user exist
-        if self.mode == "prod":
+        if self.mode == "local":
+            # Base SQLite en mémoire avec un utilisateur admin
+            self.app = create_app({
+                "TESTING": True,
+                "SQLALCHEMY_DATABASE_URI": "sqlite:///:memory:",
+            })
+            self.app_context = self.app.app_context()
+            self.app_context.push()
+            db.create_all()
+            db.session.add(User(login="admin", password="12345"))
+            db.session.commit()
+            self.client = self.app.test_client()
+        else:
+            # If testing against Postgres, ensure the users table and admin user exist
             conn = _connect_postgres()
             cur = conn.cursor()
             cur.execute('''
@@ -59,6 +73,12 @@ class AuthFlowTests(unittest.TestCase):
             cur.close()
             conn.close()
 
+    def tearDown(self):
+        if self.mode == "local":
+            db.session.remove()
+            db.drop_all()
+            self.app_context.pop()
+
     def test_protected_route_accepts_valid_basic_auth(self):
         if self.mode == "prod":
             resp = requests.get(f"{self.base_url}/api/me", auth=HTTPBasicAuth("admin", "12345"))
@@ -66,9 +86,7 @@ class AuthFlowTests(unittest.TestCase):
             self.assertEqual(resp.json(), {"login": "admin"})
             return
 
-        app = create_app()
-        client = app.test_client()
-        response = client.get(
+        response = self.client.get(
             "/api/me",
             auth=("admin", "12345"),
         )
@@ -82,9 +100,7 @@ class AuthFlowTests(unittest.TestCase):
             self.assertEqual(resp.status_code, 401)
             return
 
-        app = create_app()
-        client = app.test_client()
-        response = client.get(
+        response = self.client.get(
             "/api/me",
             auth=("admin", "wrong-password"),
         )
